@@ -6,13 +6,13 @@ import java.util.function.Consumer;
 
 public class DIYArrayList<T> implements List<T> {
 
-    transient Object[] mainElement;
+    private transient Object[] mainElement;
 
     private static final Object[] EMPTY_ELEMENT = {};
 
     private int sizeArray;
 
-    protected transient int modCount = 0;
+    private transient int modCount = 0;
 
     public DIYArrayList() {
         this.mainElement = EMPTY_ELEMENT;
@@ -186,8 +186,9 @@ public class DIYArrayList<T> implements List<T> {
         }
 
         public void set(T e) {
-            if (lastRet < 0)
+            if (lastRet < 0){
                 throw new IllegalStateException();
+            }
             checkForComodification();
 
             try {

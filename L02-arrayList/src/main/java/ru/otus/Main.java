@@ -7,9 +7,9 @@ import java.util.Collections;
 
 public class Main {
     public static void main(String[] args) {
-        DIYArrayList<Integer> firstArray = new DIYArrayList();
-        DIYArrayList<Integer> secondArray = new DIYArrayList();
-        DIYArrayList<String> thirdArray = new DIYArrayList();
+        DIYArrayList<Integer> firstArray = new DIYArrayList<>();
+        DIYArrayList<Integer> secondArray = new DIYArrayList<>();
+        DIYArrayList<String> thirdArray = new DIYArrayList<>();
 
         for (int i = 1; i <= 25; i++) {
             firstArray.add(i);
