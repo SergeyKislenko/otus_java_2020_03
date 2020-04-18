@@ -1,4 +1,5 @@
 rootProject.name = 'otus_java_2020_03'
-include 'L01-gradle'
-include 'L02-arrayList'
+include 'HW01-gradle'
+include 'HW02-arrayList'
+include 'HW03-reflection'
 

@@ -13,7 +13,7 @@ dependencies {
 }
 
 shadowJar {
-    archiveBaseName.set('L01-gradleShadow')
+    archiveBaseName.set('HW01-gradleShadow')
     archiveVersion.set('0.1')
     archiveClassifier.set('')
     manifest {
