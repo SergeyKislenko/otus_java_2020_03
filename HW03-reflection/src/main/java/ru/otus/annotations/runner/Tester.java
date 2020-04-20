@@ -10,35 +10,34 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 
 public class Tester {
-    private static final String PACKAGE_PATH = "ru.otus.test.";
-
-    private static int completedTests = 0;
-    private static int faultTests = 0;
-    private static int allTests = 0;
+    private int allTests = 0;
+    private int completedTests = 0;
+    private int faultTests = 0;
 
     public Tester() {
     }
 
-    public static void doTest(String className) throws ClassNotFoundException {
-            Object objTestClass;
-            Class clazz = Class.forName(PACKAGE_PATH + className);
-            Method[] methodsPublic = clazz.getMethods();
-            allTests = (int) Arrays.stream(methodsPublic).filter(method -> method.isAnnotationPresent(Test.class)).count();
+    public void doTest(String className) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+        Object objTestClass;
+        Class clazz = Class.forName(className);
+        Method[] testMethods = Arrays.stream(clazz.getMethods()).filter(method -> method.isAnnotationPresent(Test.class)).toArray(Method[]::new);
+        Method[] beforeMethods = Arrays.stream(clazz.getMethods()).filter(method -> method.isAnnotationPresent(Before.class)).toArray(Method[]::new);
+        Method[] afterMethods = Arrays.stream(clazz.getMethods()).filter(method -> method.isAnnotationPresent(After.class)).toArray(Method[]::new);
+        allTests = (int) Arrays.stream(clazz.getMethods()).filter(method -> method.isAnnotationPresent(Test.class)).count();
 
-            for (Method method : methodsPublic) {
-                if (method.isAnnotationPresent(Test.class)) {
-                    try {
-                        objTestClass = clazz.getDeclaredConstructor().newInstance();
-                        executeMethodsWithAnnotation(objTestClass, Before.class, methodsPublic);
-                        executeMethodsWithAnnotation(objTestClass, Test.class, method);
-                        executeMethodsWithAnnotation(objTestClass, After.class, methodsPublic);
-                        completedTests++;
-                    }  catch (NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException e) {
-                        System.out.println("Error while execute test method" + method.getName());
-                        faultTests++;
-                    }
+        for (Method method : testMethods) {
+                try {
+                    objTestClass = clazz.getDeclaredConstructor().newInstance();
+                    executeMethodsWithAnnotation(objTestClass, Before.class, beforeMethods);
+                    executeMethodsWithAnnotation(objTestClass, Test.class, method);
+                    completedTests++;
+                } catch (NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException e) {
+                    System.out.println("Error while execute test method" + method.getName());
+                    faultTests++;
+                }finally {
+                    executeMethodsWithAnnotation(clazz.getDeclaredConstructor().newInstance(), After.class, afterMethods);
                 }
-            }
+        }
         printStatistic();
     }
 
@@ -55,7 +54,7 @@ public class Tester {
         method.invoke(object);
     }
 
-    private static void printStatistic(){
+    private void printStatistic() {
         System.out.println(String.format("\n====================\nAll tests: %d\nCompleted Tests: %d\nFault Tests: %d\n====================", allTests, completedTests, faultTests));
     }
 }

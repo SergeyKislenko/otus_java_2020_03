@@ -16,8 +16,8 @@ public class NeedTesting {
     }
 
     @Test
-    public void firstTest() {
-        System.out.print("Test_1 ");
+    public void firstTest() throws Exception {
+       throw new Exception();
     }
 
     @Test
