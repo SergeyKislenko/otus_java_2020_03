@@ -26,17 +26,17 @@ public class Tester {
         allTests = (int) Arrays.stream(clazz.getMethods()).filter(method -> method.isAnnotationPresent(Test.class)).count();
 
         for (Method method : testMethods) {
-                try {
-                    objTestClass = clazz.getDeclaredConstructor().newInstance();
-                    executeMethodsWithAnnotation(objTestClass, Before.class, beforeMethods);
-                    executeMethodsWithAnnotation(objTestClass, Test.class, method);
-                    completedTests++;
-                } catch (NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException e) {
-                    System.out.println("Error while execute test method" + method.getName());
-                    faultTests++;
-                }finally {
-                    executeMethodsWithAnnotation(clazz.getDeclaredConstructor().newInstance(), After.class, afterMethods);
-                }
+            objTestClass = clazz.getDeclaredConstructor().newInstance();
+            try {
+                executeMethodsWithAnnotation(objTestClass, Before.class, beforeMethods);
+                executeMethodsWithAnnotation(objTestClass, Test.class, method);
+                completedTests++;
+            } catch (IllegalAccessException | InvocationTargetException e) {
+                System.out.println("Error while execute test method" + method.getName());
+                faultTests++;
+            } finally {
+                executeMethodsWithAnnotation(objTestClass, After.class, afterMethods);
+            }
         }
         printStatistic();
     }
