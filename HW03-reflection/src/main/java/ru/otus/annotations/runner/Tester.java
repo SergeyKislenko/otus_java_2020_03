@@ -10,14 +10,15 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 
 public class Tester {
-    private int allTests = 0;
-    private int completedTests = 0;
-    private int faultTests = 0;
+
 
     public Tester() {
     }
 
-    public void doTest(String className) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+    public void doTest(String className) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException, ClassNotFoundException {
+        int allTests = 0;
+        int completedTests = 0;
+        int faultTests = 0;
         Object objTestClass;
         Class clazz = Class.forName(className);
         Method[] testMethods = Arrays.stream(clazz.getMethods()).filter(method -> method.isAnnotationPresent(Test.class)).toArray(Method[]::new);
@@ -30,22 +31,25 @@ public class Tester {
             try {
                 executeMethodsWithAnnotation(objTestClass, Before.class, beforeMethods);
                 executeMethodsWithAnnotation(objTestClass, Test.class, method);
+                executeMethodsWithAnnotation(objTestClass, After.class, afterMethods);
                 completedTests++;
             } catch (IllegalAccessException | InvocationTargetException e) {
-                System.out.println("Error while execute test method" + method.getName());
+                System.out.println("Error while execute test method: " + method.getName());
                 faultTests++;
             } finally {
-                executeMethodsWithAnnotation(objTestClass, After.class, afterMethods);
+                try {
+                    executeMethodsWithAnnotation(objTestClass, After.class, afterMethods);
+                } catch (IllegalAccessException | InvocationTargetException e) {
+                    System.out.println("Error while execute After test method " + method.getName() + " in finally block");
+                }
             }
         }
-        printStatistic();
+        printStatistic(allTests, completedTests, faultTests);
     }
 
     private static void executeMethodsWithAnnotation(Object objTestClass, Class<? extends Annotation> annotation, Method... methods) throws InvocationTargetException, IllegalAccessException {
         for (Method method : methods) {
-            if (method.isAnnotationPresent(annotation)) {
-                callMethod(objTestClass, method);
-            }
+            callMethod(objTestClass, method);
         }
     }
 
@@ -54,7 +58,7 @@ public class Tester {
         method.invoke(object);
     }
 
-    private void printStatistic() {
+    private void printStatistic(int allTests, int completedTests, int faultTests) {
         System.out.println(String.format("\n====================\nAll tests: %d\nCompleted Tests: %d\nFault Tests: %d\n====================", allTests, completedTests, faultTests));
     }
 }

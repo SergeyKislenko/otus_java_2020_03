@@ -6,6 +6,8 @@ import java.lang.reflect.InvocationTargetException;
 
 public class Main {
     public static void main(String[] args) throws ClassNotFoundException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
-       new Tester().doTest("ru.otus.test.NeedTesting");
+       Tester tester = new Tester();
+       tester.doTest("ru.otus.test.NeedTesting");
+       tester.doTest("ru.otus.test.NeedTesting");
     }
 }
