@@ -29,16 +29,16 @@ public class Tester {
         for (Method method : testMethods) {
             objTestClass = clazz.getDeclaredConstructor().newInstance();
             try {
-                executeMethods(objTestClass, Before.class, beforeMethods);
-                executeMethods(objTestClass, Test.class, method);
-                executeMethods(objTestClass, After.class, afterMethods);
+                executeMethods(objTestClass, beforeMethods);
+                executeMethods(objTestClass, method);
+                executeMethods(objTestClass, afterMethods);
                 completedTests++;
             } catch (IllegalAccessException | InvocationTargetException e) {
                 System.out.println("Error while execute test method: " + method.getName());
                 faultTests++;
             } finally {
                 try {
-                    executeMethods(objTestClass, After.class, afterMethods);
+                    executeMethods(objTestClass, afterMethods);
                 } catch (IllegalAccessException | InvocationTargetException e) {
                     System.out.println("Error while execute After test method " + method.getName() + " in finally block");
                 }
@@ -47,7 +47,7 @@ public class Tester {
         printStatistic(allTests, completedTests, faultTests);
     }
 
-    private static void executeMethods(Object objTestClass, Class<? extends Annotation> annotation, Method... methods) throws InvocationTargetException, IllegalAccessException {
+    private static void executeMethods(Object objTestClass, Method... methods) throws InvocationTargetException, IllegalAccessException {
         for (Method method : methods) {
             callMethod(objTestClass, method);
         }
