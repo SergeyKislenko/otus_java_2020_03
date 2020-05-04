@@ -44,6 +44,7 @@ public class Main {
         Map<String, Long> countsGc = allInfoGc.stream().collect(Collectors.groupingBy(e -> e.getGcName(), Collectors.counting()));
 
         System.out.println("All GC worked: " + allGsDurations.getSum() + " ms");
+        System.out.println("Count loop: " + mbean.getCountLoop());
         countsGc.forEach((name, count)-> System.out.println(name + ": " + count + " times" ));
         gcPerMinute.forEach((minute, duration)-> System.out.println((minute + 1) + " minute GC worked --> " + duration.getSum() + " ms"));
     }

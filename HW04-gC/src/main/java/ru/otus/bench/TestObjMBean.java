@@ -6,4 +6,6 @@ public interface TestObjMBean {
     int getSize();
 
     void setSize(int size);
+
+    int getCountLoop();
 }
