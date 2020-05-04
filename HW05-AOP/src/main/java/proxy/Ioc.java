@@ -2,12 +2,10 @@ package proxy;
 
 import annotations.Log;
 
-import java.lang.reflect.Array;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.*;
 
 public class Ioc {
 
@@ -22,17 +20,17 @@ public class Ioc {
 
     static class DemoInvocationHandler implements InvocationHandler {
         private final TestLogging testLog;
-        private Method[] needTestingMethods;
+        private Set<Method> needTestingMethods = new HashSet<>();
 
         DemoInvocationHandler(TestLogging testLog) {
             this.testLog = testLog;
-            needTestingMethods = Arrays.stream(testLog.getClass().getMethods()).filter(method -> method.isAnnotationPresent(Log.class)).toArray(Method[]::new);
+            Collections.addAll(needTestingMethods, Arrays.stream(testLog.getClass().getMethods()).filter(method -> method.isAnnotationPresent(Log.class)).toArray(Method[]::new));
         }
 
         @Override
         public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
             for(Method curMethod : needTestingMethods){
-                if(curMethod.getName().equals(method.getName())){
+                if(curMethod.getName().equals(method.getName())&& Arrays.equals(curMethod.getParameterTypes(), method.getParameterTypes())){
                     System.out.println("executed method: " + method.getName() + ", param: " + Arrays.toString(args).replaceAll("[\\[\\]]",""));
                     break;
                 }

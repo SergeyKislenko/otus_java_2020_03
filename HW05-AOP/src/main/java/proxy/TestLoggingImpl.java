@@ -13,6 +13,11 @@ public class TestLoggingImpl implements TestLogging{
     }
 
     @Override
+    public void calculation(int a, int b, int c) {
+        System.out.println(a + b + c);
+    }
+
+    @Override
     public void multiplication(int a, int b) {
         System.out.println(a * b);
     }
