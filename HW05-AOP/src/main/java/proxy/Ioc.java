@@ -6,6 +6,7 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Ioc {
 
@@ -20,11 +21,13 @@ public class Ioc {
 
     static class DemoInvocationHandler implements InvocationHandler {
         private final TestLogging testLog;
-        private Set<Method> needTestingMethods = new HashSet<>();
+        private final Set<Method> needTestingMethods;
 
         DemoInvocationHandler(TestLogging testLog) {
             this.testLog = testLog;
-            Collections.addAll(needTestingMethods, Arrays.stream(testLog.getClass().getMethods()).filter(method -> method.isAnnotationPresent(Log.class)).toArray(Method[]::new));
+            needTestingMethods = Arrays.stream(testLog.getClass().getMethods())
+                    .filter(method -> method.isAnnotationPresent(Log.class))
+                    .collect(Collectors.toSet());
         }
 
         @Override
