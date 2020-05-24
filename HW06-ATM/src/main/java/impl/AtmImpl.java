@@ -24,7 +24,7 @@ public class AtmImpl implements Atm {
     @Override
     public void depositMoney(Banknotes banknotes, int count) {
         cells.stream()
-                .filter(cell -> cell.getBanknotesValue() == Banknotes.getValue(banknotes))
+                .filter(cell -> cell.getBanknotesValue() == banknotes.value)
                 .forEach(cell -> cell.addBanknotes(count));
     }
 

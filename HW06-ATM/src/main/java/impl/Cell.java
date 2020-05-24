@@ -8,7 +8,7 @@ public class Cell implements Comparable<Cell> {
 
     public Cell(Banknotes banknotes) {
         this.banknotes = banknotes;
-        this.banknotesValue = Banknotes.getValue(banknotes);
+        this.banknotesValue = banknotes.value;
     }
 
     public void addBanknotes(int count) {
@@ -16,7 +16,11 @@ public class Cell implements Comparable<Cell> {
     }
 
     public void removeBanknotes(int count) {
-        this.countOfBanknotes -= count;
+        if(countOfBanknotes - count >= 0){
+            this.countOfBanknotes -= count;
+        }else {
+            System.out.println("Not enough banknotes");
+        }
     }
 
     public int getBanknotesValue() {
