@@ -10,6 +10,8 @@ targetCompatibility = JavaVersion.VERSION_13
 dependencies {
     implementation 'com.google.guava:guava'
     implementation 'com.google.protobuf:protobuf-java-util'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
 }
 
 shadowJar {
@@ -21,4 +23,7 @@ shadowJar {
     }
 }
 
+test {
+    useJUnitPlatform()
+}
 tasks.build.dependsOn tasks.shadowJar
