@@ -10,5 +10,9 @@ public interface UserDao {
 
     long insertUser(User user);
 
+    void insertOrUpdate(User user);
+
+    void update(User user);
+
     SessionManager getSessionManager();
 }

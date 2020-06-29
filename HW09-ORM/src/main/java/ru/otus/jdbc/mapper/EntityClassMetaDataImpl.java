@@ -1,5 +1,6 @@
 package ru.otus.jdbc.mapper;
 
+import ru.otus.core.exception.DAOException;
 import ru.otus.jdbc.annotations.Id;
 import ru.otus.jdbc.mapper.interfaces.EntityClassMetaData;
 
@@ -9,7 +10,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class EntityClassMetaDataImpl<T> implements EntityClassMetaData {
+public class EntityClassMetaDataImpl<T> implements EntityClassMetaData<T> {
     private final Class<T> clazz;
 
     public EntityClassMetaDataImpl(Class<T> clazz) {
@@ -22,21 +23,23 @@ public class EntityClassMetaDataImpl<T> implements EntityClassMetaData {
     }
 
     @Override
-    public Constructor<T> getConstructor() {
+    public Constructor<T> getConstructor() throws DAOException {
         try {
             return clazz.getConstructor();
         } catch (NoSuchMethodException e) {
-            e.printStackTrace();
+            throw new DAOException("No constructor in the class");
         }
-        return null;
     }
 
     @Override
-    public Field getIdField() {
-        return Arrays.stream(clazz.getDeclaredFields())
-                .filter(f -> f.isAnnotationPresent(Id.class))
-                .findFirst()
-                .get();
+    public Field getIdField() throws DAOException {
+        List<Field> list = Arrays.stream(clazz.getDeclaredFields())
+                .filter(f -> f.isAnnotationPresent(Id.class)).collect(Collectors.toList());
+        if (list.size() > 0) {
+            return list.get(0);
+        } else {
+            throw new DAOException("No field with annotation @Id in the class");
+        }
     }
 
     @Override

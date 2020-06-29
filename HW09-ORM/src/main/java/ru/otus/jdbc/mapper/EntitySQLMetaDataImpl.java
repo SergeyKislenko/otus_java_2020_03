@@ -1,5 +1,6 @@
 package ru.otus.jdbc.mapper;
 
+import ru.otus.core.exception.DAOException;
 import ru.otus.jdbc.mapper.interfaces.EntitySQLMetaData;
 
 import java.lang.reflect.Field;
@@ -18,7 +19,7 @@ public class EntitySQLMetaDataImpl<T> implements EntitySQLMetaData {
     }
 
     @Override
-    public String getSelectByIdSql() {
+    public String getSelectByIdSql() throws DAOException {
         return String.format("SELECT * FROM %s WHERE %s = ?", entityClassMetaData.getName(), entityClassMetaData.getIdField().getName());
     }
 
@@ -31,7 +32,7 @@ public class EntitySQLMetaDataImpl<T> implements EntitySQLMetaData {
     }
 
     @Override
-    public String getUpdateSql() {
+    public String getUpdateSql() throws DAOException {
         String tableName = entityClassMetaData.getName();
         String fieldsWithoutId = entityClassMetaData.getFieldsWithoutId().stream()
                 .map(f -> f.getName() + " = ?")

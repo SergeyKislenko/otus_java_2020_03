@@ -1,5 +1,6 @@
 package ru.otus.jdbc.mapper;
 
+import ru.otus.core.exception.DAOException;
 import ru.otus.jdbc.DbExecutorImpl;
 import ru.otus.jdbc.mapper.interfaces.EntityClassMetaData;
 import ru.otus.jdbc.mapper.interfaces.EntitySQLMetaData;
@@ -32,7 +33,7 @@ public class JdbcMapperImpl<T> implements JdbcMapper<T> {
         String insert = entitySQLMetaData.getInsertSql();
         sessionManager.beginSession();
         try {
-            dbExecutor.executeInsert(getConnection(), insert, getParams(objectData));
+            dbExecutor.executeInsert(getConnection(), insert, getParams(entityClassMetaData, objectData));
             sessionManager.commitSession();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -43,17 +44,18 @@ public class JdbcMapperImpl<T> implements JdbcMapper<T> {
     public void update(T objectData) {
         EntityClassMetaDataImpl<T> entityClassMetaData = new EntityClassMetaDataImpl(objectData.getClass());
         EntitySQLMetaData entitySQLMetaData = new EntitySQLMetaDataImpl<>(entityClassMetaData);
-        Field idField = entityClassMetaData.getIdField();
-        String update = entitySQLMetaData.getUpdateSql();
-        idField.setAccessible(true);
+        String update = "";
         Object id = null;
         try {
+            update = entitySQLMetaData.getUpdateSql();
+            Field idField = entityClassMetaData.getIdField();
+            idField.setAccessible(true);
             id = idField.get(objectData);
-        } catch (IllegalAccessException e) {
+        } catch (IllegalAccessException | DAOException e) {
             e.printStackTrace();
         }
         sessionManager.beginSession();
-        List<Object> params = getParams(objectData);
+        List<Object> params = getParams(entityClassMetaData, objectData);
         params.add(id);
         try {
             dbExecutor.executeUpdate(getConnection(), update, params);
@@ -67,12 +69,12 @@ public class JdbcMapperImpl<T> implements JdbcMapper<T> {
     @Override
     public void insertOrUpdate(T objectData) {
         EntityClassMetaDataImpl<T> entityClassMetaData = new EntityClassMetaDataImpl(objectData.getClass());
-        Field idField = entityClassMetaData.getIdField();
-        idField.setAccessible(true);
         T object = null;
         try {
+            Field idField = entityClassMetaData.getIdField();
+            idField.setAccessible(true);
             object = findById((long) idField.get(objectData), (Class<T>) objectData.getClass());
-        } catch (IllegalAccessException e) {
+        } catch (IllegalAccessException | DAOException e) {
             e.printStackTrace();
         }
 
@@ -88,14 +90,19 @@ public class JdbcMapperImpl<T> implements JdbcMapper<T> {
     public T findById(long id, Class<T> clazz) {
         EntityClassMetaDataImpl entityClassMetaData = new EntityClassMetaDataImpl(clazz);
         EntitySQLMetaData entitySQLMetaData = new EntitySQLMetaDataImpl<>(entityClassMetaData);
-        String select = entitySQLMetaData.getSelectByIdSql();
+        String select = null;
+        try {
+            select = entitySQLMetaData.getSelectByIdSql();
+        } catch (DAOException e) {
+            e.printStackTrace();
+        }
         sessionManager.beginSession();
         Optional<T> findObject = dbExecutor.executeSelect(getConnection(), select, id, resultSet -> {
             try {
                 if (resultSet.next()) {
-                    return createNewObject(resultSet, clazz);
+                    return (T) createNewObject(resultSet, entityClassMetaData);
                 }
-            } catch (SQLException throwables) {
+            } catch (SQLException | DAOException | NoSuchMethodException throwables) {
                 throwables.printStackTrace();
             }
             return null;
@@ -103,8 +110,7 @@ public class JdbcMapperImpl<T> implements JdbcMapper<T> {
         return findObject.orElse(null);
     }
 
-    private List<Object> getParams(T object) {
-        EntityClassMetaData<T> entityClassMetaData = new EntityClassMetaDataImpl(object.getClass());
+    private List<Object> getParams(EntityClassMetaDataImpl<T> entityClassMetaData, T object) {
         List<Object> listParams = new ArrayList<>();
         for (Field field : entityClassMetaData.getFieldsWithoutId()) {
             field.setAccessible(true);
@@ -117,8 +123,7 @@ public class JdbcMapperImpl<T> implements JdbcMapper<T> {
         return listParams;
     }
 
-    private T createNewObject(ResultSet resultSet, Class<T> clazz) {
-        EntityClassMetaData<T> entityClassMetaData = new EntityClassMetaDataImpl<>(clazz);
+    private T createNewObject(ResultSet resultSet, EntityClassMetaData<T> entityClassMetaData) throws DAOException, NoSuchMethodException {
         Constructor<T> constructor = entityClassMetaData.getConstructor();
         try {
             T object = constructor.newInstance();

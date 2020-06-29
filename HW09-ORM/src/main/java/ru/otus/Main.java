@@ -2,16 +2,19 @@ package ru.otus;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ru.otus.core.dao.AccountDao;
+import ru.otus.core.dao.UserDao;
+import ru.otus.core.dao.impl.AccountDaoImpl;
+import ru.otus.core.dao.impl.UserDaoImpl;
 import ru.otus.core.model.Account;
 import ru.otus.core.model.User;
 import ru.otus.h2.DataSourceH2;
-import ru.otus.jdbc.mapper.JdbcMapperImpl;
-import ru.otus.jdbc.mapper.interfaces.JdbcMapper;
 import ru.otus.jdbc.sessionmanager.SessionManagerJdbc;
 
 import javax.sql.DataSource;
 import java.math.BigDecimal;
 import java.sql.SQLException;
+import java.util.Optional;
 
 
 public class Main {
@@ -25,52 +28,53 @@ public class Main {
         demo.createAccountTable(dataSource);
 
         var sessionManager = new SessionManagerJdbc(dataSource);
-        JdbcMapper<User> jdbcUserMapper = new JdbcMapperImpl(sessionManager);
-        JdbcMapper<Account> jdbcAccountMapper = new JdbcMapperImpl(sessionManager);
+        UserDao userDao = new UserDaoImpl(sessionManager);
+        AccountDao accountDao = new AccountDaoImpl(sessionManager);
+
 
 //      USER
         User misha = new User(1, "Misha", 18);
-        jdbcUserMapper.insert(misha);
+        userDao.insertUser(misha);
 
-        User findMisha = jdbcUserMapper.findById(misha.getId(), User.class);
+        Optional<User> findMisha = userDao.findById(misha.getId());
         logger.info(findMisha.toString());
 
         User ben = new User(2, "Ben", 19);
-        jdbcUserMapper.insertOrUpdate(ben);
-        logger.info(jdbcUserMapper.findById(ben.getId(), User.class).toString());
+        userDao.insertOrUpdate(ben);
+        logger.info(userDao.findById(ben.getId()).toString());
 
         ben.setAge(33);
         ben.setName("beN");
-        jdbcUserMapper.insertOrUpdate(ben);
-        logger.info(jdbcUserMapper.findById(ben.getId(), User.class).toString());
+        userDao.insertOrUpdate(ben);
+        logger.info(userDao.findById(ben.getId()).toString());
 
         ben.setName("BEN");
         ben.setAge(88);
-        jdbcUserMapper.update(ben);
+        userDao.update(ben);
 
-        logger.info(jdbcUserMapper.findById(ben.getId(), User.class).toString());
+        logger.info(userDao.findById(ben.getId()).toString());
 
 //      ACCOUNT
         Account account = new Account(1, "admin", BigDecimal.valueOf(777));
-        jdbcAccountMapper.insert(account);
+        accountDao.insertAccount(account);
 
-        Account findAccount = jdbcAccountMapper.findById(account.getNo(), Account.class);
+        Optional<Account> findAccount = accountDao.findById(account.getNo());
         logger.info(findAccount.toString());
 
         Account newAccount = new Account(2, "regAdmin", BigDecimal.valueOf(666));
-        jdbcAccountMapper.insertOrUpdate(newAccount);
-        logger.info(jdbcAccountMapper.findById(newAccount.getNo(), Account.class).toString());
+        accountDao.insertOrUpdate(newAccount);
+        logger.info(accountDao.findById(newAccount.getNo()).toString());
 
         newAccount.setType("alfaAdmin");
         newAccount.setRest(BigDecimal.valueOf(555));
-        jdbcAccountMapper.insertOrUpdate(newAccount);
-        logger.info(jdbcAccountMapper.findById(newAccount.getNo(), Account.class).toString());
+        accountDao.insertOrUpdate(newAccount);
+        logger.info(accountDao.findById(newAccount.getNo()).toString());
 
         newAccount.setType("goodAdmin");
         newAccount.setRest(BigDecimal.valueOf(444));
-        jdbcAccountMapper.update(newAccount);
+        accountDao.update(newAccount);
 
-        logger.info(jdbcAccountMapper.findById(newAccount.getNo(), Account.class).toString());
+        logger.info(accountDao.findById(newAccount.getNo()).toString());
     }
 
     private void createUserTable(DataSource dataSource) throws SQLException {
