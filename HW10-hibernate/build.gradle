@@ -9,18 +9,20 @@ targetCompatibility = JavaVersion.VERSION_13
 
 dependencies {
     // This dependency is used by the application.
-    implementation 'com.google.guava:guava'
     implementation 'org.slf4j:slf4j-api'
     implementation 'ch.qos.logback:logback-classic'
-    implementation 'ch.qos.logback:logback-core'
+    implementation 'com.h2database:h2'
+    implementation 'org.hibernate:hibernate-core'
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
 }
 
 shadowJar {
-    archiveBaseName.set('HW07-department')
+    archiveBaseName.set('HW10-hibernate')
     archiveVersion.set('0.1')
     archiveClassifier.set('')
     manifest {
-        attributes 'Main-Class': 'Department'
+        attributes 'Main-Class': 'ru.otus.Main'
     }
 }
 

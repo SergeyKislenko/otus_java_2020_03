@@ -30,6 +30,12 @@ allprojects {
             dependency("com.google.protobuf:protobuf-java-util:${Versions.protobuf}")
             dependency("org.junit.jupiter:junit-jupiter-api:${Versions.junit}")
             dependency("org.junit.jupiter:junit-jupiter-engine:${Versions.junit}")
+            dependency("org.hibernate:hibernate-core:${Versions.hibernate}")
+            dependency("ch.qos.logback:logback-classic:${Versions.logback}")
+            dependency("ch.qos.logback:logback-core:${Versions.logback}")
+            dependency("org.slf4j:slf4j-api:${Versions.slf4j}")
+            dependency("com.h2database:h2:${Versions.h2}")
+            dependency("org.projectlombok:lombok:${Versions.lombok}")
         }
     }
 }
