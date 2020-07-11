@@ -3,7 +3,6 @@ package ru.otus.core.service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.otus.cachehw.HwCache;
-import ru.otus.cachehw.MyCache;
 import ru.otus.core.dao.UserDao;
 import ru.otus.core.model.User;
 import ru.otus.core.sessionmanager.SessionManager;
@@ -14,10 +13,11 @@ public class DbServiceUserImpl implements DBServiceUser {
     private static Logger logger = LoggerFactory.getLogger(DbServiceUserImpl.class);
 
     private final UserDao userDao;
-    private final HwCache<Long, User> cache = new MyCache<>();
+    private final HwCache<String, User> cache;
 
-    public DbServiceUserImpl(UserDao userDao) {
+    public DbServiceUserImpl(UserDao userDao, HwCache<String, User> cache) {
         this.userDao = userDao;
+        this.cache = cache;
     }
 
     @Override
@@ -28,7 +28,7 @@ public class DbServiceUserImpl implements DBServiceUser {
                 userDao.insertOrUpdate(user);
                 long userId = user.getId();
                 sessionManager.commitSession();
-                cache.put(userId, user);
+                cache.put(String.valueOf(userId), user);
                 logger.info("created user: {}", userId);
                 return userId;
             } catch (Exception e) {
@@ -45,8 +45,8 @@ public class DbServiceUserImpl implements DBServiceUser {
         try (SessionManager sessionManager = userDao.getSessionManager()) {
             sessionManager.beginSession();
             try {
-                if (cache.get(id) != null) {
-                    Optional<User> opt = Optional.of(cache.get(id));
+                if (cache.get(String.valueOf(id)) != null) {
+                    Optional<User> opt = Optional.of(cache.get(String.valueOf(id)));
                     return opt;
                 }
                 Optional<User> userOptional = userDao.findById(id);
@@ -58,10 +58,5 @@ public class DbServiceUserImpl implements DBServiceUser {
             }
             return Optional.empty();
         }
-    }
-
-    @Override
-    public HwCache<Long, User> getCache() {
-        return cache;
     }
 }

@@ -1,20 +1,26 @@
 package ru.otus.cachehw;
 
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 
 public class MyCache<K, V> implements HwCache<K, V> {
+    private static final Logger logger = LoggerFactory.getLogger(MyCache.class);
     private final Map<K, V> cache = new WeakHashMap<>();
-    private List<HwListener<K, V>> listeners = new ArrayList<>();
+    private final List<HwListener<K, V>> listeners = new ArrayList<>();
+    private static final String PUT = "put";
+    private static final String REMOVE = "remove";
 
     @Override
     public void put(K key, V value) {
         if (key != null) {
             cache.put(key, value);
-            listeners.forEach(listener -> listener.notify(key, value, "put"));
+            notifyListeners(key, value, PUT);
         }
     }
 
@@ -22,7 +28,7 @@ public class MyCache<K, V> implements HwCache<K, V> {
     public void remove(K key) {
         if (key != null) {
             cache.remove(key);
-            listeners.forEach(listener -> listener.notify(key, null, "remove"));
+            notifyListeners(key, null, REMOVE);
         }
     }
 
@@ -44,4 +50,13 @@ public class MyCache<K, V> implements HwCache<K, V> {
         listeners.remove(listener);
     }
 
+    private void notifyListeners(K key, V value, String action) {
+        listeners.forEach(listener -> {
+            try {
+                listener.notify(key, value, action);
+            } catch (Exception e) {
+                logger.error("Listener call error: {}", e.getMessage());
+            }
+        });
+    }
 }
