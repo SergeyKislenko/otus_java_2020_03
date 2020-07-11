@@ -5,7 +5,9 @@ import com.google.gson.GsonBuilder;
 import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ru.otus.cachehw.HwCache;
 import ru.otus.cachehw.HwListener;
+import ru.otus.cachehw.MyCache;
 import ru.otus.core.dao.UserDao;
 import ru.otus.core.model.Address;
 import ru.otus.core.model.Phone;
@@ -33,15 +35,19 @@ public class Main {
     public static void main(String[] args) throws Exception {
         SessionFactory sessionFactory = HibernateUtils.buildSessionFactory("hibernate.cfg.xml", User.class, Address.class, Phone.class);
         SessionManagerHibernate sessionManager = new SessionManagerHibernate(sessionFactory);
+
         Gson gson = new GsonBuilder().serializeNulls().setPrettyPrinting().create();
         UserDao userDao = new UserDaoHibernate(sessionManager);
-        DBServiceUser dbServiceUser = new DbServiceUserImpl(userDao);
-        dbServiceUser.getCache().addListener(new HwListener<Long, User>() {
+        HwCache<String, User> cache = new MyCache<>();
+        DBServiceUser dbServiceUser = new DbServiceUserImpl(userDao, cache);
+        HwListener<String, User> cacheEventListener = new HwListener<String, User>() {
             @Override
-            public void notify(Long key, User value, String action) {
+            public void notify(String key, User value, String action) {
                 logger.info("key:{}, value:{}, action: {}", key, value, action);
             }
-        });
+        };
+        cache.addListener(cacheEventListener);
+
         createUsers(dbServiceUser);
         TemplateProcessor templateProcessor = new TemplateProcessorImpl(TEMPLATES_DIR);
         AdminAuthService authService = new AdminAuthServiceImpl(dbServiceUser);

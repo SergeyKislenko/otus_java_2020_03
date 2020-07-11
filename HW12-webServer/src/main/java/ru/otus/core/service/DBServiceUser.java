@@ -1,6 +1,5 @@
 package ru.otus.core.service;
 
-import ru.otus.cachehw.HwCache;
 import ru.otus.core.model.User;
 
 import java.util.List;
@@ -15,7 +14,5 @@ public interface DBServiceUser {
     Optional<User> findByLogin(String login);
 
     Optional<List<User>> findAll();
-
-    HwCache<Long, User> getCache();
 
 }

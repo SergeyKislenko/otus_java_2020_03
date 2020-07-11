@@ -54,7 +54,7 @@ public class AdminWebServerSimple implements AdminWebServer {
 
         HandlerList handlers = new HandlerList();
         handlers.addHandler(resourceHandler);
-        handlers.addHandler(applySecurity(servletContextHandler, "/users", "/api/user/*"));
+        handlers.addHandler(applySecurity(servletContextHandler, "/admin", "/api/users/*"));
 
 
         server.setHandler(handlers);
@@ -75,8 +75,8 @@ public class AdminWebServerSimple implements AdminWebServer {
 
     private ServletContextHandler createServletContextHandler() {
         ServletContextHandler servletContextHandler = new ServletContextHandler(ServletContextHandler.SESSIONS);
-        servletContextHandler.addServlet(new ServletHolder(new AdminServlet(templateProcessor, dbServiceUser)), "/users");
-        servletContextHandler.addServlet(new ServletHolder(new AdminApiServlet(dbServiceUser, gson)), "/api/user/*");
+        servletContextHandler.addServlet(new ServletHolder(new AdminServlet(templateProcessor, dbServiceUser)), "/admin");
+        servletContextHandler.addServlet(new ServletHolder(new AdminApiServlet(dbServiceUser, gson)), "/api/users/*");
         return servletContextHandler;
     }
 }
