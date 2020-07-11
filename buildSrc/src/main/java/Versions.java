@@ -7,4 +7,7 @@ public interface Versions {
     String slf4j = "1.7.25";
     String h2 = "1.4.197";
     String lombok = "1.18.12";
+    String jetty = "9.4.27.v20200227";
+    String freemarker = "2.3.28";
+    String gson = "2.8.6";
 }

@@ -36,6 +36,11 @@ allprojects {
             dependency("org.slf4j:slf4j-api:${Versions.slf4j}")
             dependency("com.h2database:h2:${Versions.h2}")
             dependency("org.projectlombok:lombok:${Versions.lombok}")
+            dependency("com.google.code.gson:gson:${Versions.gson}")
+            dependency("org.eclipse.jetty:jetty-server:${Versions.jetty}")
+            dependency("org.eclipse.jetty:jetty-webapp:${Versions.jetty}")
+            dependency("org.eclipse.jetty:jetty-security:${Versions.jetty}")
+            dependency("org.freemarker:freemarker:${Versions.freemarker}")
         }
     }
 }
