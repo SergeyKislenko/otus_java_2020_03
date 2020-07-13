@@ -12,6 +12,8 @@ import ru.otus.core.dao.UserDao;
 import ru.otus.core.model.Address;
 import ru.otus.core.model.Phone;
 import ru.otus.core.model.User;
+import ru.otus.core.service.DBInitServise;
+import ru.otus.core.service.DBInitServiseImpl;
 import ru.otus.core.service.DBServiceUser;
 import ru.otus.core.service.DbServiceUserImpl;
 import ru.otus.hibernate.HibernateUtils;
@@ -19,13 +21,10 @@ import ru.otus.hibernate.dao.UserDaoHibernate;
 import ru.otus.hibernate.sessionmanager.SessionManagerHibernate;
 import ru.otus.server.AdminWebServer;
 import ru.otus.server.AdminWebServerWithFilterBasedSecurity;
-import ru.otus.services.TemplateProcessor;
-import ru.otus.services.TemplateProcessorImpl;
 import ru.otus.services.AdminAuthService;
 import ru.otus.services.AdminAuthServiceImpl;
-
-import java.util.ArrayList;
-import java.util.List;
+import ru.otus.services.TemplateProcessor;
+import ru.otus.services.TemplateProcessorImpl;
 
 public class Main {
     private static final Logger logger = LoggerFactory.getLogger(Main.class);
@@ -39,7 +38,10 @@ public class Main {
         Gson gson = new GsonBuilder().serializeNulls().setPrettyPrinting().create();
         UserDao userDao = new UserDaoHibernate(sessionManager);
         HwCache<String, User> cache = new MyCache<>();
+        DBInitServise dbInitServise = new DBInitServiseImpl();
         DBServiceUser dbServiceUser = new DbServiceUserImpl(userDao, cache);
+
+        dbInitServise.initUserDb(dbServiceUser);
         HwListener<String, User> cacheEventListener = new HwListener<String, User>() {
             @Override
             public void notify(String key, User value, String action) {
@@ -48,7 +50,6 @@ public class Main {
         };
         cache.addListener(cacheEventListener);
 
-        createUsers(dbServiceUser);
         TemplateProcessor templateProcessor = new TemplateProcessorImpl(TEMPLATES_DIR);
         AdminAuthService authService = new AdminAuthServiceImpl(dbServiceUser);
 
@@ -57,22 +58,5 @@ public class Main {
 
         adminWebServer.start();
         adminWebServer.join();
-    }
-
-    private static void createUsers(DBServiceUser dbServiceUser) {
-        List<User> list = new ArrayList<>();
-        for (int i = 0; i <= 30; i++) {
-            User user = new User();
-            user.setName("Misha" + i);
-            user.setLogin("alfa_" + i);
-            user.setPassword(i + "");
-            list.add(user);
-        }
-        User admin = new User();
-        admin.setLogin("admin");
-        admin.setName("Семён Семенович");
-        admin.setPassword("admin");
-        list.add(admin);
-        list.stream().forEach(u -> dbServiceUser.saveUser(u));
     }
 }
