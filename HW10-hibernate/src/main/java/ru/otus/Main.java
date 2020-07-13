@@ -20,6 +20,7 @@ public class Main {
     private static final Logger logger = LoggerFactory.getLogger(Main.class);
 
     public static void main(String[] args) {
+        long beginTime = System.currentTimeMillis();
         SessionFactory sessionFactory = HibernateUtils.buildSessionFactory("hibernate.cfg.xml", User.class, Address.class, Phone.class);
 
         SessionManagerHibernate sessionManager = new SessionManagerHibernate(sessionFactory);
@@ -46,5 +47,6 @@ public class Main {
         id = dbServiceUser.saveUser(user);
         Optional<User> getUser2 = dbServiceUser.getUser(id);
         getUser2.ifPresentOrElse(System.out::println, () -> logger.info("User does not exist"));
+        System.out.println("All time " + ((System.currentTimeMillis() - beginTime)));
     }
 }
