@@ -41,6 +41,7 @@ allprojects {
             dependency("org.eclipse.jetty:jetty-webapp:${Versions.jetty}")
             dependency("org.eclipse.jetty:jetty-security:${Versions.jetty}")
             dependency("org.freemarker:freemarker:${Versions.freemarker}")
+            dependency("org.reflections:reflections:${Versions.reflections}")
         }
     }
 }
