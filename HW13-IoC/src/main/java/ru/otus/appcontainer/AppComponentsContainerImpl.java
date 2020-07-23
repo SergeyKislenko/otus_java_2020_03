@@ -3,6 +3,8 @@ package ru.otus.appcontainer;
 import org.reflections.Reflections;
 import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ru.otus.appcontainer.api.AppComponent;
 import ru.otus.appcontainer.api.AppComponentsContainer;
 import ru.otus.appcontainer.api.AppComponentsContainerConfig;
@@ -10,20 +12,23 @@ import ru.otus.appcontainer.api.AppComponentsContainerConfig;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class AppComponentsContainerImpl implements AppComponentsContainer {
-
+    private static Logger logger = LoggerFactory.getLogger(AppComponentsContainerImpl.class);
     private final List<Object> appComponents = new ArrayList<>();
     private final Map<String, Object> appComponentsByName = new HashMap<>();
 
-    public AppComponentsContainerImpl(Class<?> initialConfigClass) throws Exception {
-        processConfig(initialConfigClass);
+    public AppComponentsContainerImpl(Class<?> initialConfigClass){
+        try {
+            processConfig(initialConfigClass);
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+        }
     }
 
     public AppComponentsContainerImpl(Class<?>... initialConfigClasses) throws Exception {
-        var sortedConf = Arrays.stream(initialConfigClasses)
-                .sorted(Comparator.comparingInt(config -> config.getAnnotation(AppComponentsContainerConfig.class).order()))
-                .collect(Collectors.toList());
+        var sortedConf = getConfigClassList(Arrays.stream(initialConfigClasses));
         for (Class<?> confClass : sortedConf) {
             processConfig(confClass);
         }
@@ -33,12 +38,15 @@ public class AppComponentsContainerImpl implements AppComponentsContainer {
         Reflections reflections = new Reflections(new ConfigurationBuilder()
                 .setUrls(ClasspathHelper.forPackage(namePackage)));
         var allConfClass = reflections.getTypesAnnotatedWith(AppComponentsContainerConfig.class);
-        var sortedConf = allConfClass.stream()
-                .sorted(Comparator.comparingInt(config -> config.getAnnotation(AppComponentsContainerConfig.class).order()))
-                .collect(Collectors.toList());
+        var sortedConf = getConfigClassList(allConfClass.stream());
         for (Class<?> confClass : sortedConf) {
             processConfig(confClass);
         }
+    }
+
+    private List<Class<?>> getConfigClassList(Stream<Class<?>> stream){
+        return stream.sorted(Comparator.comparingInt(config -> config.getAnnotation(AppComponentsContainerConfig.class).order()))
+                .collect(Collectors.toList());
     }
 
     private void processConfig(Class<?> configClass) throws Exception {
