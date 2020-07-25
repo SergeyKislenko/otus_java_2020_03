@@ -42,6 +42,12 @@ allprojects {
             dependency("org.eclipse.jetty:jetty-security:${Versions.jetty}")
             dependency("org.freemarker:freemarker:${Versions.freemarker}")
             dependency("org.reflections:reflections:${Versions.reflections}")
+            dependency("org.springframework:spring-context:${Versions.spring}")
+            dependency("org.springframework:spring-webmvc:${Versions.spring}")
+            dependency("org.springframework:spring-web:${Versions.spring}")
+            dependency("org.thymeleaf:thymeleaf:${Versions.thymeleaf}")
+            dependency("org.thymeleaf:thymeleaf-spring5:${Versions.thymeleaf}")
+            dependency("javax.servlet:javax.servlet-api:${Versions.servlet}")
         }
     }
 }

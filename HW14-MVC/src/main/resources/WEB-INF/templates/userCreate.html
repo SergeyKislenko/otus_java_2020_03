@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Create user</title>
+    <style type="text/css">
+        body {
+            padding: 50px;
+        }
+
+        label {
+            display: inline-block;
+            width: 100px;
+        }
+        input {
+            margin-top: 3px;
+            margin-bottom: 3px;
+        }
+        input:read-only {
+            background: lightgray;
+        }
+    </style>
+    <style th:inline="text">
+        h3 {
+            background: url([[@{/static/listmark.png}]]) no-repeat;
+            padding: 2px;
+            padding-left: 30px;
+        }
+    </style>
+</head>
+<body>
+
+<form id="create-form" th:action="@{/user/save}" th:object="${user}" th:method="post" accept-charset="utf-8">
+    <h3>Введите данные пользователя</h3>
+    <input type="text" name="name" id="name" maxlength="20" size="30" th:value="${user.name}"required placeholder="Введите ФИО пользователя"><br/>
+    <input type="text" name="login" id="login" maxlength="20" size="30" th:value="${user.login}"required placeholder="Введите логин пользователя"><br/>
+    <input type="text" name="password" id="password" maxlength="20" size="30" th:value="${user.password}"  required placeholder="Введите пароль пользователя"><br/>
+    <button type="submit">Создать</button>
+</form>
+
+</body>
+</html>
