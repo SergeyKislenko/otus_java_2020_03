@@ -11,10 +11,6 @@ dependencies {
     // This dependency is used by the application.
     implementation 'org.slf4j:slf4j-api'
     implementation 'ch.qos.logback:logback-classic'
-    implementation("org.reflections:reflections")
-
-    compileOnly 'org.projectlombok:lombok'
-    annotationProcessor 'org.projectlombok:lombok'
 }
 
 shadowJar {

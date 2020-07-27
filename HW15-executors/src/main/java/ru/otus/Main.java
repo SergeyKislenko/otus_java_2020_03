@@ -29,7 +29,7 @@ public class Main {
 
                 if (index >= 10) {
                     flag = false;
-                } else if (index == 0) {
+                } else if (index == 1) {
                     flag = true;
                 }
 
