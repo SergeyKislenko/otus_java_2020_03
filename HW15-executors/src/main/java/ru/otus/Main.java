@@ -7,6 +7,12 @@ public class Main {
     private static final Logger logger = LoggerFactory.getLogger(Main.class);
     private String last = "second";
 
+    public static void main(String[] args) {
+        Main main = new Main();
+        new Thread(() -> main.action("first")).start();
+        new Thread(() -> main.action("second")).start();
+    }
+
     private synchronized void action(String message) {
         int index = 1;
         boolean flag = true;
@@ -38,12 +44,6 @@ public class Main {
                 throw new NotInterestingException(ex);
             }
         }
-    }
-
-    public static void main(String[] args) {
-        Main main = new Main();
-        new Thread(() -> main.action("first")).start();
-        new Thread(() -> main.action("second")).start();
     }
 
     private static void sleep() {
