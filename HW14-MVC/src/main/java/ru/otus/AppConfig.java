@@ -5,15 +5,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import ru.otus.cachehw.HwCache;
 import ru.otus.cachehw.MyCache;
-import ru.otus.core.dao.UserDao;
 import ru.otus.core.model.Address;
 import ru.otus.core.model.Phone;
 import ru.otus.core.model.User;
 import ru.otus.core.service.DBInitServise;
 import ru.otus.core.service.DBInitServiseImpl;
+import ru.otus.core.service.DBServiceUser;
 import ru.otus.hibernate.HibernateUtils;
-import ru.otus.hibernate.dao.UserDaoHibernate;
-import ru.otus.hibernate.sessionmanager.SessionManagerHibernate;
 
 @Configuration
 public class AppConfig {
@@ -31,8 +29,7 @@ public class AppConfig {
     }
 
     @Bean(initMethod = "initUserDb")
-    public DBInitServise dbInitServise() {
-        UserDao userDao = new UserDaoHibernate(new SessionManagerHibernate(buildSessionFactory()));
-        return new DBInitServiseImpl(userDao, cache());
+    public DBInitServise dbInitServise(DBServiceUser dbServiceUser) {
+        return new DBInitServiseImpl(dbServiceUser);
     }
 }
