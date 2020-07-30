@@ -1,16 +1,23 @@
 package ru.otus.core.service;
 
+import org.springframework.stereotype.Component;
+import ru.otus.cachehw.HwCache;
+import ru.otus.core.dao.UserDao;
 import ru.otus.core.model.User;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Component
 public class DBInitServiseImpl implements DBInitServise {
-    public DBInitServiseImpl() {
+    private final DBServiceUser userService;
+
+    public DBInitServiseImpl(UserDao userDao, HwCache<String, User> cache) {
+        this.userService = new DbServiceUserImpl(userDao, cache);
     }
 
     @Override
-    public void initUserDb(DBServiceUser dbServiceUser) {
+    public void initUserDb() {
         List<User> list = new ArrayList<>();
         for (int i = 0; i <= 15; i++) {
             User user = new User();
@@ -19,6 +26,6 @@ public class DBInitServiseImpl implements DBInitServise {
             user.setPassword(i + "");
             list.add(user);
         }
-        list.stream().forEach(u -> dbServiceUser.saveUser(u));
+        list.stream().forEach(u -> userService.saveUser(u));
     }
 }

@@ -17,12 +17,10 @@ public class DbServiceUserImpl implements DBServiceUser {
 
     private final UserDao userDao;
     private final HwCache<String, User> cache;
-    private final DBInitServise initServise = new DBInitServiseImpl();
 
     public DbServiceUserImpl(UserDao userDao, HwCache<String, User> cache) {
         this.userDao = userDao;
         this.cache = cache;
-        initServise.initUserDb(this);
     }
 
     @Override
