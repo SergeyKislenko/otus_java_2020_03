@@ -11,4 +11,7 @@ public interface Versions {
     String freemarker = "2.3.28";
     String gson = "2.8.6";
     String reflections = "0.9.12";
+    String spring = "5.2.7.RELEASE";
+    String thymeleaf = "3.0.11.RELEASE";
+    String servlet = "4.0.1";
 }

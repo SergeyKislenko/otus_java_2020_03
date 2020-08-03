@@ -1,0 +1,37 @@
+plugins {
+    id 'war'
+}
+
+sourceCompatibility = JavaVersion.VERSION_13
+targetCompatibility = JavaVersion.VERSION_13
+
+dependencies {
+    implementation 'org.slf4j:slf4j-api'
+    implementation 'ch.qos.logback:logback-classic'
+    implementation 'com.h2database:h2'
+    implementation 'org.hibernate:hibernate-core'
+    implementation("com.google.code.gson:gson")
+    implementation("org.freemarker:freemarker")
+    implementation("org.springframework:spring-context")
+    implementation("org.springframework:spring-webmvc")
+    implementation("org.springframework:spring-web")
+    implementation("org.thymeleaf:thymeleaf")
+    implementation("org.thymeleaf:thymeleaf-spring5")
+    providedCompile("javax.servlet:javax.servlet-api")
+
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+}
+
+compileJava.options.encoding = 'UTF-8'
+
+tasks.withType(JavaCompile) {
+    options.with {
+        encoding = 'UTF-8'
+    }
+}
+
+war {
+    archiveName 'app.war'
+    from 'src/main/resources'
+}
