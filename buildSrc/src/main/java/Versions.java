@@ -14,4 +14,9 @@ public interface Versions {
     String spring = "5.2.7.RELEASE";
     String thymeleaf = "3.0.11.RELEASE";
     String servlet = "4.0.1";
+    String springBoot = "2.3.1.RELEASE";
+    String sockjs = "1.1.2";
+    String stomp = "2.3.3-1";
+    String locator = "0.46";
+    String bootstrap = "4.4.1-1";
 }
