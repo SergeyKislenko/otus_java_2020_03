@@ -2,9 +2,9 @@ package ru.otus.front.handlers;
 
 import ru.otus.core.model.User;
 import ru.otus.core.service.DBServiceUser;
-import ru.otus.messagesystem.MessageBuilder;
 import ru.otus.messagesystem.RequestHandler;
 import ru.otus.messagesystem.message.Message;
+import ru.otus.messagesystem.message.MessageBuilder;
 import ru.otus.messagesystem.message.Serializers;
 
 import java.util.Optional;

@@ -22,9 +22,9 @@ import ru.otus.front.FrontendServiceImpl;
 import ru.otus.front.handlers.GetUserDataRequestHandler;
 import ru.otus.front.handlers.GetUserDataResponseHandler;
 import ru.otus.hibernate.HibernateUtils;
-import ru.otus.messagesystem.MessageSystem;
-import ru.otus.messagesystem.MessageSystemImpl;
-import ru.otus.messagesystem.RequestHandler;
+import ru.otus.messagesystem.*;
+import ru.otus.messagesystem.client.CallbackRegistry;
+import ru.otus.messagesystem.client.CallbackRegistryImpl;
 import ru.otus.messagesystem.client.MsClient;
 import ru.otus.messagesystem.client.MsClientImpl;
 import ru.otus.messagesystem.message.MessageType;
@@ -47,8 +47,10 @@ public class AppConfig implements WebSocketMessageBrokerConfigurer {
     @Bean
     public MsClient databaseMsClient(DbServiceUserImpl dbServiceUser) {
         MessageSystem messageSystem = messageSystem();
-        MsClient databaseMsClient = new MsClientImpl(DATABASE_SERVICE_CLIENT_NAME, messageSystem);
-        databaseMsClient.addHandler(MessageType.CREATE_USER, getUserDataRequestHandler(dbServiceUser));
+        CallbackRegistry callbackRegistry = new CallbackRegistryImpl();
+        HandlersStore requestHandlerDatabaseStore = new HandlersStoreImpl();
+        MsClient databaseMsClient = new MsClientImpl(DATABASE_SERVICE_CLIENT_NAME, messageSystem, requestHandlerDatabaseStore, callbackRegistry);
+        requestHandlerDatabaseStore.addHandler(MessageType.CREATE_USER, getUserDataRequestHandler(dbServiceUser));
         messageSystem.addClient(databaseMsClient);
         return databaseMsClient;
     }
@@ -56,8 +58,10 @@ public class AppConfig implements WebSocketMessageBrokerConfigurer {
     @Bean
     public MsClient frontendMsClient() {
         MessageSystem messageSystem = messageSystem();
-        MsClient frontendMsClient = new MsClientImpl(FRONTEND_SERVICE_CLIENT_NAME, messageSystem);
-        frontendMsClient.addHandler(MessageType.CREATE_USER, getUserDataResponseHandler(frontendMsClient));
+        CallbackRegistry callbackRegistry = new CallbackRegistryImpl();
+        HandlersStore requestHandlerFrontendStore = new HandlersStoreImpl();
+        MsClient frontendMsClient = new MsClientImpl(FRONTEND_SERVICE_CLIENT_NAME, messageSystem, requestHandlerFrontendStore, callbackRegistry);
+        requestHandlerFrontendStore.addHandler(MessageType.CREATE_USER, getUserDataResponseHandler(frontendMsClient));
         messageSystem.addClient(frontendMsClient);
         return frontendMsClient;
     }

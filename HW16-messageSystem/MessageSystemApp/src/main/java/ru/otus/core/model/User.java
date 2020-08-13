@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.util.List;
 
 import lombok.*;
+import ru.otus.messagesystem.client.ResultDataType;
+
 import javax.persistence.*;
 
 @Entity
@@ -14,7 +16,7 @@ import javax.persistence.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class User implements Serializable {
+public class User extends ResultDataType implements Serializable{
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)

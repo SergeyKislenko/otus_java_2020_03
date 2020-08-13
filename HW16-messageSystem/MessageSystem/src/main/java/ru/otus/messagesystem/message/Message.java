@@ -1,30 +1,33 @@
 package ru.otus.messagesystem.message;
 
+import ru.otus.messagesystem.client.CallbackId;
+
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.UUID;
 
 public class Message implements Serializable {
-
     private static final long serialVersionUID = 1L;
 
-    private final UUID id = UUID.randomUUID();
+    private final MessageId id;
     private final String from;
     private final String to;
-    private final UUID sourceMessageId;
+    private final MessageId sourceMessageId;
     private final String type;
     private final byte[] payload;
+    private final CallbackId callbackId;
 
-    public Message(String from, String to, UUID sourceMessageId, String type, byte[] payload) {
+    Message(MessageId messageId, String from, String to, MessageId sourceMessageId, String type,
+            byte[] payload, CallbackId callbackId) {
+        this.id = messageId;
         this.from = from;
         this.to = to;
         this.sourceMessageId = sourceMessageId;
         this.type = type;
         this.payload = payload;
+        this.callbackId = callbackId;
     }
-
 
     @Override
     public boolean equals(Object o) {
@@ -36,12 +39,13 @@ public class Message implements Serializable {
                 Objects.equals(to, message.to) &&
                 Objects.equals(sourceMessageId, message.sourceMessageId) &&
                 Objects.equals(type, message.type) &&
-                Arrays.equals(payload, message.payload);
+                Arrays.equals(payload, message.payload) &&
+                Objects.equals(callbackId, message.callbackId);
     }
 
     @Override
     public int hashCode() {
-        int result = Objects.hash(id, from, to, sourceMessageId, type);
+        int result = Objects.hash(id, from, to, sourceMessageId, type, callbackId);
         result = 31 * result + Arrays.hashCode(payload);
         return result;
     }
@@ -54,10 +58,11 @@ public class Message implements Serializable {
                 ", to='" + to + '\'' +
                 ", sourceMessageId=" + sourceMessageId +
                 ", type='" + type + '\'' +
+                ", callbackId=" + callbackId +
                 '}';
     }
 
-    public UUID getId() {
+    public MessageId getId() {
         return id;
     }
 
@@ -77,7 +82,11 @@ public class Message implements Serializable {
         return payload;
     }
 
-    public Optional<UUID> getSourceMessageId() {
+    public CallbackId getCallbackId() {
+        return callbackId;
+    }
+
+    public Optional<MessageId> getSourceMessageId() {
         return Optional.ofNullable(sourceMessageId);
     }
 }

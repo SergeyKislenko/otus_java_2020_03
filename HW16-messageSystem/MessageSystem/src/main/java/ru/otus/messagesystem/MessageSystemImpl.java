@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.otus.messagesystem.client.MsClient;
 import ru.otus.messagesystem.message.Message;
+import ru.otus.messagesystem.message.MessageBuilder;
 
 import java.util.Map;
 import java.util.concurrent.*;
@@ -111,7 +112,7 @@ public final class MessageSystemImpl implements MessageSystem {
         while (runFlag.get() || !messageQueue.isEmpty()) {
             try {
                 Message msg = messageQueue.take();
-                if (msg == MessageBuilder.VOID_MESSAGE) {
+                if (msg == MessageBuilder.getVoidMessage()) {
                     logger.info("received the stop message");
                 } else {
                     MsClient clientTo = clientMap.get(msg.getTo());
@@ -152,10 +153,10 @@ public final class MessageSystemImpl implements MessageSystem {
     }
 
     private void insertStopMessage() throws InterruptedException {
-        boolean result = messageQueue.offer(MessageBuilder.VOID_MESSAGE);
+        boolean result = messageQueue.offer(MessageBuilder.getVoidMessage());
         while (!result) {
             Thread.sleep(100);
-            result = messageQueue.offer(MessageBuilder.VOID_MESSAGE);
+            result = messageQueue.offer(MessageBuilder.getVoidMessage());
         }
     }
 

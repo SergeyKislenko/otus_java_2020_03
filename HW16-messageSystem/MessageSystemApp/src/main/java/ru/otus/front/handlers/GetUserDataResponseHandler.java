@@ -6,10 +6,10 @@ import ru.otus.core.model.User;
 import ru.otus.front.FrontendService;
 import ru.otus.messagesystem.RequestHandler;
 import ru.otus.messagesystem.message.Message;
+import ru.otus.messagesystem.message.MessageId;
 import ru.otus.messagesystem.message.Serializers;
 
 import java.util.Optional;
-import java.util.UUID;
 
 public class GetUserDataResponseHandler implements RequestHandler {
     private static final Logger logger = LoggerFactory.getLogger(GetUserDataResponseHandler.class);
@@ -25,7 +25,7 @@ public class GetUserDataResponseHandler implements RequestHandler {
         logger.info("new message:{}", msg);
         try {
             User user = Serializers.deserialize(msg.getPayload(), User.class);
-            UUID sourceMessageId = msg.getSourceMessageId().orElseThrow(() -> new RuntimeException("Not found sourceMsg for message:" + msg.getId()));
+            MessageId sourceMessageId = msg.getSourceMessageId().orElseThrow(() -> new RuntimeException("Not found sourceMsg for message:" + msg.getId()));
             frontendService.takeConsumer(sourceMessageId, User.class).ifPresent(consumer -> consumer.accept(user));
 
         } catch (Exception ex) {

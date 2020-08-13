@@ -2,32 +2,29 @@ package ru.otus.messagesystem.client;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ru.otus.messagesystem.HandlersStore;
 import ru.otus.messagesystem.MessageSystem;
 import ru.otus.messagesystem.RequestHandler;
 import ru.otus.messagesystem.message.Message;
+import ru.otus.messagesystem.message.MessageBuilder;
 import ru.otus.messagesystem.message.MessageType;
-import ru.otus.messagesystem.message.Serializers;
 
-import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class MsClientImpl implements MsClient {
     private static final Logger logger = LoggerFactory.getLogger(MsClientImpl.class);
 
     private final String name;
     private final MessageSystem messageSystem;
-    private final Map<String, RequestHandler> handlers = new ConcurrentHashMap<>();
+    private final HandlersStore handlersStore;
+    private final CallbackRegistry callbackRegistry;
 
-
-    public MsClientImpl(String name, MessageSystem messageSystem) {
+    public MsClientImpl(String name, MessageSystem messageSystem, HandlersStore handlersStore,
+                        CallbackRegistry callbackRegistry) {
         this.name = name;
         this.messageSystem = messageSystem;
-    }
-
-    @Override
-    public void addHandler(MessageType type, RequestHandler requestHandler) {
-        this.handlers.put(type.getName(), requestHandler);
+        this.handlersStore = handlersStore;
+        this.callbackRegistry = callbackRegistry;
     }
 
     @Override
@@ -44,13 +41,14 @@ public class MsClientImpl implements MsClient {
         return result;
     }
 
+    @SuppressWarnings("all")
     @Override
     public void handle(Message msg) {
         logger.info("new message:{}", msg);
         try {
-            RequestHandler requestHandler = handlers.get(msg.getType());
+            RequestHandler requestHandler = handlersStore.getHandlerByType(msg.getType());
             if (requestHandler != null) {
-                requestHandler.handle(msg).ifPresent(this::sendMessage);
+                requestHandler.handle(msg).ifPresent(message -> sendMessage((Message) message));
             } else {
                 logger.error("handler not found for the message type:{}", msg.getType());
             }
@@ -60,10 +58,12 @@ public class MsClientImpl implements MsClient {
     }
 
     @Override
-    public <T> Message produceMessage(String to, T data, MessageType msgType) {
-        return new Message(name, to, null, msgType.getName(), Serializers.serialize(data));
+    public <T extends ResultDataType> Message produceMessage(String to, T data, MessageType msgType,
+                                                                MessageCallback<T> callback) {
+        Message message = MessageBuilder.buildMessage(name, to, null, data, msgType);
+        callbackRegistry.put(message.getCallbackId(), callback);
+        return message;
     }
-
 
     @Override
     public boolean equals(Object o) {
