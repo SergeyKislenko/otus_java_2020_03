@@ -14,5 +14,6 @@ include 'HW12-webServer'
 include 'HW13-IoC'
 include 'HW14-MVC'
 include 'HW15-executors'
-include 'HW16-messageSystem'
+include 'HW16-messageSystem:MessageSystem'
+include 'HW16-messageSystem:MessageSystemApp'
 

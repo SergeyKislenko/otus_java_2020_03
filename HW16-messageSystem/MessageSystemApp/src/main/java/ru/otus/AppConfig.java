@@ -1,6 +1,7 @@
 package ru.otus;
 
 import org.hibernate.SessionFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
@@ -9,7 +10,6 @@ import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 import ru.otus.cachehw.HwCache;
 import ru.otus.cachehw.MyCache;
-import ru.otus.core.dao.UserDao;
 import ru.otus.core.model.Address;
 import ru.otus.core.model.Phone;
 import ru.otus.core.model.User;
@@ -17,9 +17,9 @@ import ru.otus.core.service.DBInitServise;
 import ru.otus.core.service.DBInitServiseImpl;
 import ru.otus.core.service.DBServiceUser;
 import ru.otus.core.service.DbServiceUserImpl;
-import ru.otus.front.handlers.GetUserDataRequestHandler;
 import ru.otus.front.FrontendService;
 import ru.otus.front.FrontendServiceImpl;
+import ru.otus.front.handlers.GetUserDataRequestHandler;
 import ru.otus.front.handlers.GetUserDataResponseHandler;
 import ru.otus.hibernate.HibernateUtils;
 import ru.otus.messagesystem.MessageSystem;
@@ -32,19 +32,23 @@ import ru.otus.messagesystem.message.MessageType;
 @EnableWebSocketMessageBroker
 @Configuration
 public class AppConfig implements WebSocketMessageBrokerConfigurer {
-    private static final String FRONTEND_SERVICE_CLIENT_NAME = "frontendService";
-    private static final String DATABASE_SERVICE_CLIENT_NAME = "databaseService";
 
-    @Bean
+    @Value("${name.frontendService}")
+    private String FRONTEND_SERVICE_CLIENT_NAME;
+
+    @Value("${name.databaseService}")
+    private String DATABASE_SERVICE_CLIENT_NAME;
+
+    @Bean(destroyMethod = "dispose")
     public MessageSystem messageSystem() {
         return new MessageSystemImpl();
     }
 
     @Bean
-    public MsClient databaseMsClient(UserDao userDao, HwCache<String, User> cache) {
+    public MsClient databaseMsClient(DbServiceUserImpl dbServiceUser) {
         MessageSystem messageSystem = messageSystem();
         MsClient databaseMsClient = new MsClientImpl(DATABASE_SERVICE_CLIENT_NAME, messageSystem);
-        databaseMsClient.addHandler(MessageType.CREATE_USER, getUserDataRequestHandler(userDao, cache));
+        databaseMsClient.addHandler(MessageType.CREATE_USER, getUserDataRequestHandler(dbServiceUser));
         messageSystem.addClient(databaseMsClient);
         return databaseMsClient;
     }
@@ -52,15 +56,15 @@ public class AppConfig implements WebSocketMessageBrokerConfigurer {
     @Bean
     public MsClient frontendMsClient() {
         MessageSystem messageSystem = messageSystem();
-        MsClient frontendMsClient = new MsClientImpl(FRONTEND_SERVICE_CLIENT_NAME, messageSystem());
+        MsClient frontendMsClient = new MsClientImpl(FRONTEND_SERVICE_CLIENT_NAME, messageSystem);
         frontendMsClient.addHandler(MessageType.CREATE_USER, getUserDataResponseHandler(frontendMsClient));
         messageSystem.addClient(frontendMsClient);
         return frontendMsClient;
     }
 
     @Bean
-    public RequestHandler getUserDataRequestHandler(UserDao userDao, HwCache<String, User> cache) {
-        return new GetUserDataRequestHandler(new DbServiceUserImpl(userDao, cache));
+    public RequestHandler getUserDataRequestHandler(DbServiceUserImpl dbServiceUser) {
+        return new GetUserDataRequestHandler(dbServiceUser);
     }
 
     @Bean

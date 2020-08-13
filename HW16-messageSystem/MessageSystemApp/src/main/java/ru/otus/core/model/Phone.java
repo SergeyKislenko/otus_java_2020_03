@@ -1,6 +1,6 @@
 package ru.otus.core.model;
-import lombok.*;
 
+import lombok.*;
 import javax.persistence.*;
 
 @Entity
