@@ -34,10 +34,10 @@ import ru.otus.messagesystem.message.MessageType;
 public class AppConfig implements WebSocketMessageBrokerConfigurer {
 
     @Value("${name.frontendService}")
-    private String FRONTEND_SERVICE_CLIENT_NAME;
+    private String frontendServiceClientName;
 
     @Value("${name.databaseService}")
-    private String DATABASE_SERVICE_CLIENT_NAME;
+    private String databaseServiceClientName;
 
     @Bean(destroyMethod = "dispose")
     public MessageSystem messageSystem() {
@@ -47,10 +47,8 @@ public class AppConfig implements WebSocketMessageBrokerConfigurer {
     @Bean
     public MsClient databaseMsClient(DbServiceUserImpl dbServiceUser) {
         MessageSystem messageSystem = messageSystem();
-        CallbackRegistry callbackRegistry = new CallbackRegistryImpl();
-        HandlersStore requestHandlerDatabaseStore = new HandlersStoreImpl();
-        MsClient databaseMsClient = new MsClientImpl(DATABASE_SERVICE_CLIENT_NAME, messageSystem, requestHandlerDatabaseStore, callbackRegistry);
-        requestHandlerDatabaseStore.addHandler(MessageType.CREATE_USER, getUserDataRequestHandler(dbServiceUser));
+        MsClient databaseMsClient = new MsClientImpl(databaseServiceClientName, messageSystem, handlersDatabaseStore(), callbackRegistry());
+        handlersDatabaseStore().addHandler(MessageType.CREATE_USER, getUserDataRequestHandler(dbServiceUser));
         messageSystem.addClient(databaseMsClient);
         return databaseMsClient;
     }
@@ -58,10 +56,8 @@ public class AppConfig implements WebSocketMessageBrokerConfigurer {
     @Bean
     public MsClient frontendMsClient() {
         MessageSystem messageSystem = messageSystem();
-        CallbackRegistry callbackRegistry = new CallbackRegistryImpl();
-        HandlersStore requestHandlerFrontendStore = new HandlersStoreImpl();
-        MsClient frontendMsClient = new MsClientImpl(FRONTEND_SERVICE_CLIENT_NAME, messageSystem, requestHandlerFrontendStore, callbackRegistry);
-        requestHandlerFrontendStore.addHandler(MessageType.CREATE_USER, getUserDataResponseHandler(frontendMsClient));
+        MsClient frontendMsClient = new MsClientImpl(frontendServiceClientName, messageSystem, handlersFrontendStore(), callbackRegistry());
+        handlersFrontendStore().addHandler(MessageType.CREATE_USER, getUserDataResponseHandler(frontendMsClient));
         messageSystem.addClient(frontendMsClient);
         return frontendMsClient;
     }
@@ -78,7 +74,7 @@ public class AppConfig implements WebSocketMessageBrokerConfigurer {
 
     @Bean
     public FrontendService frontendService(MsClient frontendMsClient) {
-        return new FrontendServiceImpl(frontendMsClient, DATABASE_SERVICE_CLIENT_NAME);
+        return new FrontendServiceImpl(frontendMsClient, databaseServiceClientName);
     }
 
     @Override
@@ -107,5 +103,18 @@ public class AppConfig implements WebSocketMessageBrokerConfigurer {
     @Bean(initMethod = "initUserDb")
     public DBInitServise dbInitServise(DBServiceUser dbServiceUser) {
         return new DBInitServiseImpl(dbServiceUser);
+    }
+
+    @Bean
+    public CallbackRegistry callbackRegistry() {
+        return new CallbackRegistryImpl();
+    }
+    @Bean
+    public HandlersStore handlersDatabaseStore() {
+        return new HandlersStoreImpl();
+    }
+    @Bean
+    public HandlersStore handlersFrontendStore() {
+        return new HandlersStoreImpl();
     }
 }

@@ -10,7 +10,7 @@ import ru.otus.messagesystem.message.Serializers;
 import java.util.Optional;
 
 
-public class GetUserDataRequestHandler implements RequestHandler {
+public class GetUserDataRequestHandler implements RequestHandler<User> {
     private final DBServiceUser dbServiceUser;
 
     public GetUserDataRequestHandler(DBServiceUser dbServiceUser) {
