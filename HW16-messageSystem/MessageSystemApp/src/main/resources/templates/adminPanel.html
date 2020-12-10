@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>List of all users</title>
+    <script src="/webjars/sockjs-client/sockjs.min.js"></script>
+    <script src="/webjars/stomp-websocket/stomp.min.js"></script>
+    <script type="text/JavaScript">
+
+        function setConnection() {
+            stompClient = Stomp.over(new SockJS('/gs-guide-websocket'));
+            stompClient.connect({}, (frame) => {
+                console.log('Connected: ' + frame);
+                stompClient.subscribe('/topic/refresh', (response) => {
+                    console.log('subscribe user: ' + JSON.parse(response.body).messageStr);
+                    location.reload();
+                });
+            });
+        }
+
+        function createNewUser() {
+
+            const name = document.getElementById('name').value;
+            const login = document.getElementById('login').value;
+            const password = document.getElementById('password').value;
+            const user = JSON.stringify({name: name, login: login, password: password});
+
+            stompClient.send('/user/create', {}, user);
+            console.log('user: ' + user);
+        }
+    </script>
+    <style type="text/css">
+        body {
+            padding: 50px;
+        }
+
+        a {
+            display: block;
+        }
+
+        input {
+            margin-top: 3px;
+            margin-bottom: 3px;
+        }
+
+
+        select {
+            width: 154px;
+        }
+
+        button {
+            width: 250px;
+        }
+
+        h3 {
+            background: url("../static/img/listmark.png") no-repeat;
+            padding: 2px;
+            padding-left: 30px;
+        }
+    </style>
+
+    <style th:inline="text">
+        h3 {
+            background: url([[@{./img/listmark.png}]]) no-repeat;
+            padding: 2px;
+            padding-left: 30px;
+        }
+    </style>
+</head>
+<body onload="setConnection();">
+<h3>Список пользователей:</h3>
+<table style="width: 400px">
+    <thead>
+    <tr>
+        <td style="width: 50px"><b>Id</b></td>
+        <td style="width: 150px"><b>Имя</b></td>
+        <td style="width: 100px"><b>Пароль</b></td>
+    </tr>
+    </thead>
+    <tr th:each="user : ${users}">
+        <td th:text="${user.id}">1</td>
+        <td th:text="${user.name}">John Doe</td>
+        <td th:text="${user.password}">*****</td>
+    </tr>
+    </tbody>
+</table>
+<br/>
+<h3>Введите данные пользователя</h3>
+<input type="text" name="name" id="name" maxlength="20" size="30" required placeholder="Введите ФИО пользователя"><br/>
+<input type="text" name="login" id="login" maxlength="20" size="30" required placeholder="Введите логин пользователя"><br/>
+<input type="text" name="password" id="password" maxlength="20" size="30" required placeholder="Введите пароль пользователя"><br/>
+<button onclick="createNewUser()">Создать пользователя</button>
+<br/><br/>
+
+</body>
+</html>

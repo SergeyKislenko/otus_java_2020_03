@@ -26,6 +26,9 @@ allprojects {
     apply plugin: "io.spring.dependency-management"
     dependencyManagement {
         dependencies {
+            imports {
+                mavenBom("org.springframework.boot:spring-boot-dependencies:${Versions.springBoot}")
+            }
             dependency("com.google.guava:guava:${Versions.guava}")
             dependency("com.google.protobuf:protobuf-java-util:${Versions.protobuf}")
             dependency("org.junit.jupiter:junit-jupiter-api:${Versions.junit}")
@@ -48,6 +51,9 @@ allprojects {
             dependency("org.thymeleaf:thymeleaf:${Versions.thymeleaf}")
             dependency("org.thymeleaf:thymeleaf-spring5:${Versions.thymeleaf}")
             dependency("javax.servlet:javax.servlet-api:${Versions.servlet}")
+            dependency("org.webjars:webjars-locator-core:${Versions.locator}")
+            dependency("org.webjars:sockjs-client:${Versions.sockjs}")
+            dependency("org.webjars:stomp-websocket:${Versions.stomp}")
         }
     }
 }
